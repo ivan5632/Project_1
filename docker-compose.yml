@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # 1. Flask App Service (Gunicorn)
+  flask_app:
+    # Build the image using the local Dockerfile
+    build: .
+    container_name: flask_app_gunicorn
+    # No need to expose port 8000 externally, only Nginx needs access
+
+  # 2. Nginx Reverse Proxy Service
+  nginx:
+    image: nginx:latest
+    container_name: nginx_reverse_proxy
+    # Map external port 80 on your machine to Nginx port 80
+    ports:
+      - "80:80"
+    volumes:
+      # Map the local config file into the container
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    # Ensure flask_app is running before starting Nginx
+    depends_on:
+      - flask_app
